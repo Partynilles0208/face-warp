@@ -35,6 +35,78 @@ body {
   position: relative;
 }
 
+.intro-banner {
+  position: relative;
+  border-radius: 28px;
+  padding: 26px 26px 54px;
+  background: #0d0d0d;
+  color: #f7f3ee;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.banner-title {
+  position: absolute;
+  left: 24px;
+  bottom: 18px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  z-index: 2;
+}
+
+.fly-row {
+  position: relative;
+  overflow: hidden;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.fly-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.fly-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  animation: fly-left 14s linear infinite;
+}
+
+.fly-row.reverse .fly-track {
+  animation-direction: reverse;
+}
+
+.fly-track span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  color: #f5f5f5;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+.fly-gap {
+  width: 20px;
+  height: 1px;
+}
+
+@keyframes fly-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .hero {
   display: flex;
   align-items: flex-end;
@@ -123,6 +195,33 @@ h1 {
   font-size: 18px;
 }
 
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mode-btn {
+  border: 1px solid #201c18;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fff7f1;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.mode-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(28, 27, 26, 0.1);
+}
+
+.mode-btn.active {
+  background: var(--accent-2);
+  color: #f4fffb;
+  border-color: var(--accent-2);
+}
+
 .control {
   display: grid;
   gap: 8px;
@@ -168,6 +267,42 @@ input[type="range"] {
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
+}
+
+.camera-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.camera-preview {
+  margin-top: 14px;
+  background: #141414;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.camera-preview video {
+  width: 100%;
+  display: block;
+}
+
+.camera-hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #d4d0cb;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(10, 10, 10, 0.4));
+}
+
+.camera-preview.active .camera-hint {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .canvas-shell {
