@@ -8,6 +8,15 @@
   </head>
   <body>
     <div class="app">
+      <section class="intro-banner">
+        <div class="fly-row">
+          <div class="fly-track" data-text="NEUS UPDATE YEAH"></div>
+        </div>
+        <div class="fly-row reverse">
+          <div class="fly-track" data-text="NEUS UPDATE YEAH"></div>
+        </div>
+        <div class="banner-title">Neus update yeah</div>
+      </section>
       <header class="hero">
         <div>
           <p class="eyebrow">Face Warp</p>
@@ -28,6 +37,15 @@
 
       <div class="workspace">
         <aside class="panel">
+          <div class="panel-section">
+            <h2>Modus</h2>
+            <div class="mode-grid">
+              <button class="mode-btn active" data-mode="push">Ziehen</button>
+              <button class="mode-btn" data-mode="bulge">Aufblasen</button>
+              <button class="mode-btn" data-mode="pinch">Zusammenziehen</button>
+              <button class="mode-btn" data-mode="twirl">Drehen</button>
+            </div>
+          </div>
           <div class="panel-section">
             <h2>Werkzeuge</h2>
             <div class="control">
@@ -58,12 +76,38 @@
                 <span id="sizeValue">90 px</span>
               </div>
             </div>
+            <div class="control">
+              <label for="softness">Weichheit</label>
+              <div class="slider-row">
+                <input
+                  id="softness"
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.1"
+                  value="1.6"
+                />
+                <span id="softnessValue">1.6</span>
+              </div>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h2>Kamera</h2>
+            <div class="camera-controls">
+              <button id="cameraBtn" class="btn ghost">Kamera starten</button>
+              <button id="captureBtn" class="btn ghost" disabled>Foto uebernehmen</button>
+            </div>
+            <div class="camera-preview" id="cameraPreview">
+              <video id="camera" playsinline muted></video>
+              <div class="camera-hint" id="cameraHint">Kamera aus</div>
+            </div>
           </div>
           <div class="panel-section tips">
             <h2>Tipps</h2>
             <ul>
               <li>Ziehe uber Gesichtspartien, um sie zu formen.</li>
               <li>Kleine Bewegungen wirken naturlicher.</li>
+              <li>Modus wechseln fur Aufblasen, Zusammenziehen, Drehen.</li>
               <li>Reset bringt dich zum Original zuruck.</li>
             </ul>
           </div>
