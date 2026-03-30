@@ -10,23 +10,34 @@ const resetBtn = document.getElementById("resetBtn");
 const saveBtn = document.getElementById("saveBtn");
 const strengthInput = document.getElementById("strength");
 const sizeInput = document.getElementById("size");
+const softnessInput = document.getElementById("softness");
 const strengthValue = document.getElementById("strengthValue");
 const sizeValue = document.getElementById("sizeValue");
+const softnessValue = document.getElementById("softnessValue");
 const placeholder = document.getElementById("placeholder");
 const brush = document.getElementById("brush");
 const canvasFrame = document.getElementById("canvasFrame");
+const cameraBtn = document.getElementById("cameraBtn");
+const captureBtn = document.getElementById("captureBtn");
+const cameraVideo = document.getElementById("camera");
+const cameraPreview = document.getElementById("cameraPreview");
+const cameraHint = document.getElementById("cameraHint");
+const modeButtons = document.querySelectorAll("[data-mode]");
 
 let strength = parseFloat(strengthInput.value);
 let radius = parseInt(sizeInput.value, 10);
+let softness = parseFloat(softnessInput.value);
 let hasImage = false;
 let dragging = false;
 let lastPos = null;
-
-const MAX_DIMENSION = 1600;
+let mode = "push";
+let cameraStream = null;
+const FLY_REPEAT = 6;
 
 function updateSliderValues() {
   strengthValue.textContent = strength.toFixed(2);
   sizeValue.textContent = `${radius} px`;
+  softnessValue.textContent = softness.toFixed(1);
   updateBrushSize();
 }
 
@@ -93,9 +104,8 @@ function loadImageFromFile(file) {
   const url = URL.createObjectURL(file);
   const img = new Image();
   img.onload = () => {
-    const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
-    const targetWidth = Math.round(img.width * scale);
-    const targetHeight = Math.round(img.height * scale);
+    const targetWidth = img.width;
+    const targetHeight = img.height;
     setCanvasSize(targetWidth, targetHeight);
     originalCtx.clearRect(0, 0, targetWidth, targetHeight);
     imgCtx.clearRect(0, 0, targetWidth, targetHeight);
@@ -176,9 +186,29 @@ function warpAt(centerX, centerY, deltaX, deltaY) {
       if (distSquared < radiusSquared) {
         const dist = Math.sqrt(distSquared);
         const falloff = 1 - dist / radius;
-        const influence = falloff * falloff;
-        sampleX = gx - deltaX * strength * influence;
-        sampleY = gy - deltaY * strength * influence;
+        const influence = Math.pow(falloff, softness);
+
+        if (mode === "push") {
+          sampleX = gx - deltaX * strength * influence;
+          sampleY = gy - deltaY * strength * influence;
+        } else if (mode === "bulge") {
+          const factor = Math.max(0.2, 1 - strength * influence);
+          sampleX = centerX + dx * factor;
+          sampleY = centerY + dy * factor;
+        } else if (mode === "pinch") {
+          const factor = 1 + strength * influence;
+          sampleX = centerX + dx * factor;
+          sampleY = centerY + dy * factor;
+        } else if (mode === "twirl") {
+          const spin = deltaX + deltaY;
+          const direction = spin === 0 ? 1 : Math.sign(spin);
+          const angle = direction * strength * influence * 1.2;
+          const cos = Math.cos(angle);
+          const sin = Math.sin(angle);
+          sampleX = centerX + dx * cos - dy * sin;
+          sampleY = centerY + dx * sin + dy * cos;
+        }
+
         if (sampleX < 0) sampleX = 0;
         if (sampleY < 0) sampleY = 0;
         if (sampleX > width - 1) sampleX = width - 1;
@@ -220,6 +250,11 @@ sizeInput.addEventListener("input", () => {
   updateSliderValues();
 });
 
+softnessInput.addEventListener("input", () => {
+  softness = parseFloat(softnessInput.value);
+  updateSliderValues();
+});
+
 fileInput.addEventListener("change", (event) => {
   const file = event.target.files && event.target.files[0];
   loadImageFromFile(file);
@@ -235,6 +270,9 @@ canvas.addEventListener("pointerdown", (event) => {
   dragging = true;
   lastPos = getPointerPos(event);
   updateBrushPosition(lastPos.cssX, lastPos.cssY, true);
+  if (mode !== "push") {
+    warpAt(lastPos.x, lastPos.y, 0, 0);
+  }
 });
 
 canvas.addEventListener("pointermove", (event) => {
@@ -293,4 +331,75 @@ canvasFrame.addEventListener("drop", (event) => {
 
 window.addEventListener("resize", updateBrushSize);
 
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    modeButtons.forEach((btn) => btn.classList.remove("active"));
+    button.classList.add("active");
+    mode = button.dataset.mode || "push";
+  });
+});
+
+cameraBtn.addEventListener("click", async () => {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach((track) => track.stop());
+    cameraStream = null;
+    cameraVideo.srcObject = null;
+    cameraPreview.classList.remove("active");
+    cameraHint.textContent = "Kamera aus";
+    cameraBtn.textContent = "Kamera starten";
+    captureBtn.disabled = true;
+    return;
+  }
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false,
+    });
+    cameraVideo.srcObject = cameraStream;
+    await cameraVideo.play();
+    cameraPreview.classList.add("active");
+    cameraHint.textContent = "Live";
+    cameraBtn.textContent = "Kamera stoppen";
+    captureBtn.disabled = false;
+  } catch (error) {
+    cameraHint.textContent = "Keine Kamera";
+  }
+});
+
+captureBtn.addEventListener("click", () => {
+  if (!cameraStream) return;
+  const width = cameraVideo.videoWidth;
+  const height = cameraVideo.videoHeight;
+  if (!width || !height) return;
+  setCanvasSize(width, height);
+  originalCtx.clearRect(0, 0, width, height);
+  imgCtx.clearRect(0, 0, width, height);
+  originalCtx.drawImage(cameraVideo, 0, 0, width, height);
+  imgCtx.drawImage(cameraVideo, 0, 0, width, height);
+  drawToScreen();
+  setHasImage(true);
+  updateBrushSize();
+});
+
+function initFlyText() {
+  const tracks = document.querySelectorAll(".fly-track");
+  tracks.forEach((track) => {
+    const text = track.dataset.text || "NEUS UPDATE YEAH";
+    let html = "";
+    for (let r = 0; r < FLY_REPEAT; r += 1) {
+      for (const char of text) {
+        if (char === " ") {
+          html += '<span class="fly-gap"></span>';
+        } else {
+          html += `<span>${char}</span>`;
+        }
+      }
+      html += '<span class="fly-gap"></span>';
+    }
+    track.innerHTML = html;
+  });
+}
+
+initFlyText();
 updateSliderValues();
