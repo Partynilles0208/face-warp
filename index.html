@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Face Warp Studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Face Warp</p>
+          <h1>Warp Studio</h1>
+          <p class="sub">
+            Verforme Gesichter sauber und kontrolliert. Ziehen, formen, exportieren.
+          </p>
+        </div>
+        <div class="quick-actions">
+          <label class="btn ghost" for="fileInput">
+            Bild laden
+            <input id="fileInput" type="file" accept="image/*" hidden />
+          </label>
+          <button id="resetBtn" class="btn ghost" disabled>Reset</button>
+          <button id="saveBtn" class="btn primary" disabled>Export</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="panel">
+          <div class="panel-section">
+            <h2>Werkzeuge</h2>
+            <div class="control">
+              <label for="strength">Staerke</label>
+              <div class="slider-row">
+                <input
+                  id="strength"
+                  type="range"
+                  min="0.05"
+                  max="1.2"
+                  step="0.01"
+                  value="0.55"
+                />
+                <span id="strengthValue">0.55</span>
+              </div>
+            </div>
+            <div class="control">
+              <label for="size">Groesse</label>
+              <div class="slider-row">
+                <input
+                  id="size"
+                  type="range"
+                  min="20"
+                  max="220"
+                  step="1"
+                  value="90"
+                />
+                <span id="sizeValue">90 px</span>
+              </div>
+            </div>
+          </div>
+          <div class="panel-section tips">
+            <h2>Tipps</h2>
+            <ul>
+              <li>Ziehe uber Gesichtspartien, um sie zu formen.</li>
+              <li>Kleine Bewegungen wirken naturlicher.</li>
+              <li>Reset bringt dich zum Original zuruck.</li>
+            </ul>
+          </div>
+        </aside>
+
+        <main class="canvas-shell">
+          <div class="canvas-frame" id="canvasFrame">
+            <canvas id="canvas" width="900" height="650"></canvas>
+            <div id="brush" class="brush"></div>
+            <div id="placeholder" class="placeholder">
+              <p>Ziehe ein Foto hierher oder lade es oben.</p>
+              <p class="mini">PNG, JPG, WebP</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
